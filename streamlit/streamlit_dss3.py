@@ -21,8 +21,8 @@ dan informasi serangan hama sebagai pendukung keputusan.
 def load_data():
     try:
         # Coba load data aktual jika ada
-        if os.path.exists('hasil_dss_gabungan_label_streamlit.csv'):
-            dss = pd.read_csv('hasil_dss_gabungan_label_streamlit.csv')
+        if os.path.exists('streamlit/hasil_dss_gabungan_label_streamlit.csv'):
+            dss = pd.read_csv('streamlit/hasil_dss_gabungan_label_streamlit.csv')
             dss['Tanggal'] = pd.to_datetime(dss['Tanggal'])
             
             # Rename kolom jika diperlukan
@@ -87,8 +87,8 @@ def load_data():
     
 
         # Load data harga beras
-        if os.path.exists('harga_beras_forecast.xlsx'):
-            harga = pd.read_excel('harga_beras_forecast.xlsx')
+        if os.path.exists('streamlit/harga_beras_forecast.xlsx'):
+            harga = pd.read_excel('streamlit/harga_beras_forecast.xlsx')
             harga['Tanggal'] = pd.to_datetime(harga['Tanggal'])
         else:
             # Buat data harga beras sintetis
@@ -107,8 +107,8 @@ def load_data():
             harga = pd.DataFrame(prices)
 
         # Load data serangan hama
-        if os.path.exists('dataset_hama.xlsx'):
-            hama = pd.read_excel('dataset_hama.xlsx')
+        if os.path.exists('streamlit/dataset_hama.xlsx'):
+            hama = pd.read_excel('streamlit/dataset_hama.xlsx')
         else:
             # Buat data hama sintetis
             years = ['2020/2021', '2021/2022', '2022/2023', '2023/2024']
@@ -260,7 +260,7 @@ with st.container():
     st.subheader("🌧️ Prediksi Curah Hujan Harian (Selama 3 Bulan Setelah Tanam)")
 
     # Load rolling forecast hasil prediksi cuaca
-    df_prediksi_cuaca = pd.read_csv('hasil_rolling_forecast_2024_2025.csv')
+    df_prediksi_cuaca = pd.read_csv('streamlit/hasil_rolling_forecast_2024_2025.csv')
     df_prediksi_cuaca['Tanggal'] = pd.to_datetime(df_prediksi_cuaca['Tanggal'])
 
     # Filter 90 hari ke depan dari tanggal tanam
