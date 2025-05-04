@@ -148,6 +148,10 @@ def load_data():
 
 # --- Load data ---
 dss, harga_beras, data_hama = load_data()
+if dss.empty or 'Tanggal' not in dss.columns:
+    st.error("Data DSS gagal dimuat. Cek kembali file CSV atau proses generasi data sintetis.")
+    st.stop()  # Stop eksekusi jika data DSS tidak valid
+
 
 # # GANTI dengan slider + tabel info tanggal
 import datetime as dt
