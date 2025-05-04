@@ -1,0 +1,4 @@
+ada 3 dataset :
+- curah hujan dan cuaca
+- harga beras
+- serangan hama
