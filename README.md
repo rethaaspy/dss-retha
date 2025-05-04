@@ -5,31 +5,39 @@ Repository ini berisi Sistem Pendukung Keputusan hybrid yang mengintegrasikan LS
 ## Struktur Repository
 
 ```
-├── dataset/                   # Data input
+├── dataset/                           # Data input
 │   ├── dataset_rainfall_all.xlsx      # Data curah hujan harian (2014-2024)
 │   ├── dataset_harga_beras.xlsx       # Data harga beras (2021-2024)
 │   └── dataset_serangan_hama.xlsx     # Data historis serangan hama (2020-2024)
 │
-├── output/                    # Output model dan prediksi
-│   ├── lstm_rainfall_model.h5         # Model LSTM prediksi curah hujan
-│   ├── lstm_classification_model.h5   # Model LSTM klasifikasi hari kering/basah
-│   ├── lstm_price_model.h5            # Model LSTM prediksi harga beras
-│   ├── scaler_rainfall_input          # Scaler fitur input curah hujan
-│   ├── scaler_rainfall_output         # Scaler output curah hujan
-│   ├── scaler_price                   # Scaler data harga beras
-│   ├── hasil_rolling_forecast.csv     # Hasil prediksi rolling forecast
-│   └── hasil_dss_gabungan_label.csv   # Rekomendasi DSS dengan label
+├── output/                                              # Output model dan prediksi
+│   ├── harga_beras_forecast.csv                         # Hasil prediksi harga beras
+│   ├── hasil_dss_evaluasi_2014_2024.csv                 # Evaluasi sistem DSS tahun 2014–2024
+│   ├── hasil_dss_final_label_cocok.csv                  # Rekomendasi DSS dengan label yang cocok
+│   ├── hasil_dss_final_label_cocok_toleransi_filtered.csv  # Hasil DSS cocok + filter toleransi
+│   ├── hasil_dss_forecast_2024_2025.csv                 # Prediksi DSS untuk tahun 2024–2025
+│   ├── hasil_dss_gabungan_2014_2025.csv                 # Gabungan hasil DSS dari 2014 hingga 2025
+│   ├── hasil_dss_gabungan_label.csv                     # Gabungan DSS dengan label
+│   ├── hasil_rolling_forecast_2014_2025.csv             # Hasil prediksi rolling forecast 2014–2025
+│   ├── lstm_classification_model.h5                     # Model LSTM untuk klasifikasi hari kering/basah
+│   ├── lstm_price_model.h5                              # Model LSTM untuk prediksi harga beras
+│   ├── lstm_rainfall_model.h5                           # Model LSTM untuk prediksi curah hujan
+│   ├── output.txt                                       # File keluaran teks
+│   ├── scaler_price                                     # Scaler untuk data harga beras
+│   ├── scaler_rainfall_input                            # Scaler fitur input curah hujan
+│   └── scaler_rainfall_output                           # Scaler output curah hujan
 │
-├── streamlit/                 # Aplikasi web Streamlit
-│   ├── streamlit_app.py              # File utama aplikasi 
-│   └── assets/                       # Gambar dan CSS untuk antarmuka
+├── streamlit/                          # Aplikasi web Streamlit
+│   ├── streamlit_dss3.py               # File utama aplikasi 
+│   └── dll                             # Data yang dibutuhkan untuk deploy
 │
-├── other/                     # Kode eksperimental
-│   ├── lstm_grid_search.py           # Grid search hyperparameter LSTM
-│   ├── lstm_baseline_univariate.py   # Model baseline LSTM univariate
-│   └── lstm_baseline_multivariate.py # Model baseline LSTM multivariate
+├── other/                                       # Kode eksperimental
+│   ├── grid-search.ipynb                        # Grid search hyperparameter LSTM
+│   ├── baseline-model-vs-best-tuning.ipynb      # Model baseline LSTM 
+│   ├── comparation model.xlsx                   # Hasil grid search
+|   ├── dataset-exploratory.ipynb                #Code exploratory curah hujan
 │
-└── code_final.py              # Kode eksekusi utama sistem
+└── final_code-v7.ipynb              # Kode eksekusi utama sistem
 ```
 
 ## Fitur Sistem
