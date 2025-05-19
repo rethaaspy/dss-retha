@@ -22,7 +22,7 @@ def load_data():
     try:
         # Load data DSS
         if os.path.exists('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv'):
-            dss = pd.read_csv('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv', encoding='utf-8', on_bad_lines='skip')
+            dss = pd.read_csv('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv', encoding='utf-8', sep=';', on_bad_lines='skip')
             st.write("Kolom pada data DSS:", dss.columns.tolist())  # Debug kolom
             
             # Jika kolom 'Tanggal' ada
