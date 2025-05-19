@@ -20,29 +20,32 @@ dan informasi serangan hama sebagai pendukung keputusan.
 @st.cache_data
 def load_data():
     try:
-        # Coba load data aktual jika ada
+        # Load data DSS
         if os.path.exists('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv'):
-            dss = pd.read_csv('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv')
-            dss['Tanggal'] = pd.to_datetime(dss['Tanggal'])
+            dss = pd.read_csv('streamlit_dashboard/hasil_dss_gabungan_label_streamlit.csv', encoding='utf-8', on_bad_lines='skip')
+            st.write("Kolom pada data DSS:", dss.columns.tolist())  # Debug kolom
             
-            # Filter supaya hanya sampai 30 April 2025
+            # Jika kolom 'Tanggal' ada
+            if 'Tanggal' in dss.columns:
+                dss['Tanggal'] = pd.to_datetime(dss['Tanggal'])
+            else:
+                raise KeyError("Kolom 'Tanggal' tidak ditemukan di data DSS.")
+            
+            # Filter sampai 30 April 2025
             dss = dss[dss['Tanggal'] <= pd.to_datetime('2025-04-30')]
-            
-            # Rename kolom jika perlu (opsional)
-            if 'Label RBS' in dss.columns and 'Label RBS' not in dss.columns:
-                dss = dss.rename(columns={'Label RBS': 'Label RBS'})
+
         else:
-            # Data sintetis jika file tidak ada
+            # Jika file tidak ada, buat data sintetis
             date_range = pd.date_range(start='2024-05-01', end='2025-04-30')
             dss_data = []
-            for date in date_range:
-                month = date.month
+            for date_ in date_range:
+                month = date_.month
                 is_rainy = month >= 10 or month <= 3
-                
+
                 total_5 = np.random.normal(85 if is_rainy else 40, 20)
                 max_dry = np.random.randint(2 if is_rainy else 5, 10 if is_rainy else 15)
                 total_30 = np.random.normal(350 if is_rainy else 180, 50)
-                
+
                 score = 0
                 if total_5 >= 38:
                     score += 2
@@ -56,7 +59,7 @@ def load_data():
                     score += 1
                 if total_30 >= 500:
                     score += 1
-                
+
                 if total_5 >= 35 and max_dry == 15 and total_30 >= 350:
                     label = 'Kuning'
                 elif score >= 5:
@@ -65,9 +68,9 @@ def load_data():
                     label = 'Kuning'
                 else:
                     label = 'Merah'
-                
+
                 dss_data.append({
-                    'Tanggal': date,
+                    'Tanggal': date_,
                     'Total 5 Hari (mm)': total_5,
                     'Max Kering 15 Hari': max_dry,
                     'Total 30 Hari (mm)': total_30,
@@ -76,18 +79,31 @@ def load_data():
             dss = pd.DataFrame(dss_data)
 
         # Load data harga beras
-        if os.path.exists('streamlit_dashboard/harga_beras_forecast.xlsx'):
+        # Sesuaikan file harga beras dengan file yang kamu punya (csv/xlsx)
+        if os.path.exists('streamlit_dashboard/harga_beras_forecast.csv'):
+            harga = pd.read_csv('streamlit_dashboard/harga_beras_forecast.csv', encoding='utf-8', on_bad_lines='skip')
+            st.write("Kolom pada data harga beras:", harga.columns.tolist())  # Debug kolom harga
+            if 'Tanggal' in harga.columns:
+                harga['Tanggal'] = pd.to_datetime(harga['Tanggal'])
+            else:
+                raise KeyError("Kolom 'Tanggal' tidak ditemukan di data harga beras.")
+            harga = harga[harga['Tanggal'] <= pd.to_datetime('2025-04-30')]
+        elif os.path.exists('streamlit_dashboard/harga_beras_forecast.xlsx'):
             harga = pd.read_excel('streamlit_dashboard/harga_beras_forecast.xlsx')
-            harga['Tanggal'] = pd.to_datetime(harga['Tanggal'])
-            harga = harga[harga['Tanggal'] <= pd.to_datetime('2025-04-30')]  # Filter juga
+            if 'Tanggal' in harga.columns:
+                harga['Tanggal'] = pd.to_datetime(harga['Tanggal'])
+            else:
+                raise KeyError("Kolom 'Tanggal' tidak ditemukan di data harga beras.")
+            harga = harga[harga['Tanggal'] <= pd.to_datetime('2025-04-30')]
         else:
+            # Data sintetis harga beras
             price_dates = pd.date_range(start='2024-05-01', end='2025-04-30')
             prices = []
             base_price = 13000
-            for date in price_dates:
+            for date_ in price_dates:
                 price = base_price * (1 + np.random.normal(0, 0.02))
                 prices.append({
-                    'Tanggal': date,
+                    'Tanggal': date_,
                     'Prediksi Harga Beras (Rp/kg)': price
                 })
             harga = pd.DataFrame(prices)
@@ -98,7 +114,7 @@ def load_data():
         else:
             years = ['2020/2021', '2021/2022', '2022/2023', '2023/2024']
             pests = ['Penggerek Batang', 'Wereng Batang Cokelat', 'Tikus', 'Blas', 'Hawar Daun Bakteri', 'Tungro']
-            
+
             hama_data = []
             for year in years:
                 for pest in pests:
@@ -114,19 +130,20 @@ def load_data():
                         area = np.random.uniform(700, 1300)
                     else:
                         area = np.random.uniform(2, 15)
-                    
+
                     hama_data.append({
                         'Tahun': year,
                         'Jenis hama': pest,
                         'Luas serangan hama (HA)': area
                     })
             hama = pd.DataFrame(hama_data)
-        
+
         return dss, harga, hama
 
     except Exception as e:
         st.error(f"Error saat memuat data: {e}")
         return pd.DataFrame(), pd.DataFrame(), pd.DataFrame()
+
 
 # --- Load data ---
 dss, harga_beras, data_hama = load_data()
@@ -214,31 +231,34 @@ with st.container():
 with st.container():
     st.subheader("🌧️ Prediksi Curah Hujan Harian (Selama 3 Bulan Setelah Tanam)")
 
-    df_prediksi_cuaca = pd.read_csv('streamlit_dashboard/hasil_rolling_forecast_2024_2025.csv')
-    df_prediksi_cuaca['Tanggal'] = pd.to_datetime(df_prediksi_cuaca['Tanggal'])
+    if os.path.exists('streamlit_dashboard/hasil_rolling_forecast_2024_2025.csv'):
+        df_prediksi_cuaca = pd.read_csv('streamlit_dashboard/hasil_rolling_forecast_2024_2025.csv')
+        df_prediksi_cuaca['Tanggal'] = pd.to_datetime(df_prediksi_cuaca['Tanggal'])
 
-    df_90hari = df_prediksi_cuaca[
-        (df_prediksi_cuaca['Tanggal'] >= pd.to_datetime(pilih_tanggal)) &
-        (df_prediksi_cuaca['Tanggal'] <= pd.to_datetime(pilih_tanggal) + pd.Timedelta(days=90))
-    ]
+        df_90hari = df_prediksi_cuaca[
+            (df_prediksi_cuaca['Tanggal'] >= pd.to_datetime(pilih_tanggal)) &
+            (df_prediksi_cuaca['Tanggal'] <= pd.to_datetime(pilih_tanggal) + pd.Timedelta(days=90))
+        ]
 
-    if not df_90hari.empty:
-        import plotly.graph_objects as go
-        fig_hujan = go.Figure()
-        fig_hujan.add_trace(go.Scatter(
-            x=df_90hari['Tanggal'],
-            y=df_90hari['Rainfall'],
-            mode='lines+markers',
-            name='Curah Hujan (mm)'
-        ))
-        fig_hujan.update_layout(
-            xaxis_title='Tanggal',
-            yaxis_title='Curah Hujan (mm)',
-            height=400
-        )
-        st.plotly_chart(fig_hujan, use_container_width=True)
+        if not df_90hari.empty:
+            import plotly.graph_objects as go
+            fig_hujan = go.Figure()
+            fig_hujan.add_trace(go.Scatter(
+                x=df_90hari['Tanggal'],
+                y=df_90hari['Rainfall'],
+                mode='lines+markers',
+                name='Curah Hujan (mm)'
+            ))
+            fig_hujan.update_layout(
+                xaxis_title='Tanggal',
+                yaxis_title='Curah Hujan (mm)',
+                height=400
+            )
+            st.plotly_chart(fig_hujan, use_container_width=True)
+        else:
+            st.info("Belum tersedia data prediksi cuaca untuk periode ini.")
     else:
-        st.info("Belum tersedia data prediksi cuaca untuk periode ini.")
+        st.info("File data prediksi curah hujan tidak ditemukan.")
 
 # --- Prediksi Harga Beras ---
 with st.container():
